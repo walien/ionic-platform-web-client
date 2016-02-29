@@ -63,6 +63,16 @@ gulp.task('build-deploy-module', ['build-push-module'], function () {
   .pipe(fs.createWriteStream(buildConfig.dist + "/deploy.js"));
 });
 
+gulp.task('build-pages-module', ['build-pages-module'], function () {
+  return browserify({
+    entries: buildConfig.sourceFiles.pages,
+    debug: false,
+    transform: [babelify]
+  }).bundle()
+  .on("error", function (err) { console.log("Error : " + err.message); })
+  .pipe(fs.createWriteStream(buildConfig.dist + "/pages.js"));
+});
+
 gulp.task('build-analytics-module', ['build-deploy-module'], function () {
   return browserify({
     entries: buildConfig.sourceFiles.analytics,

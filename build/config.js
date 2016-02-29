@@ -32,6 +32,12 @@ var src = {
     'src/deploy/angular.js'
   ],
 
+  'pages': [
+    'src/pages/pages.js',
+    'src/pages/es5.js',
+    'src/pages/angular.js'
+  ],
+
   'analytics': [
     'src/analytics/storage.js',
     'src/analytics/serializers.js',
@@ -55,6 +61,7 @@ module.exports = {
     'core': src.core,
     'push': src.push,
     'deploy': src.deploy,
+    'pages': src.pages,
     'analytics': src.analytics,
     'bundle': [].concat(
       src.core,
