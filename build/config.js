@@ -66,6 +66,7 @@ module.exports = {
     'bundle': [].concat(
       src.core,
       src.push,
+      src.pages,
       src.deploy,
       src.analytics
     )

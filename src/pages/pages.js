@@ -1,10 +1,10 @@
-import { Settings } from "../core/settings";
+// import { Settings } from "../core/settings";
 import { DeferredPromise } from "../core/promise";
 import { Logger } from "../core/logger";
 import { IonicPlatform } from "../core/core";
-import { EventEmitter } from "../core/events";
+// import { EventEmitter } from "../core/events";
 
-var settings = new Settings();
+// var settings = new Settings();
 
 export class Pages {
 
@@ -41,6 +41,54 @@ export class Pages {
    * @return {void}
    */
   initialize() {
+  }
+
+  fetchPages() {
+    var q = new DeferredPromise();
+
+    setTimeout(function() {
+      q.resolve([
+        {
+          stateConfig: {
+            state: 'about',
+            url: '/about',
+            templateUrl: 'about-page.html'
+          },
+
+          html: `
+          <ion-view view-title="Dynamic Page">
+            <ion-content class="padding">
+              <h2>This is a dynamic page!</h2>
+              <p>
+                How cool is this shit?
+              </p>
+              <div class="custom-thing">
+                This is a custom thing. How darn cool?
+              </div>
+              <button ng-click="doClicker()" class="button button-primary">Click me, I dare ya!</button>
+            </ion-content>
+          </ion-view>
+          `,
+          css: `
+          .custom-thing {
+            background-color: red;
+            color: white;
+            padding: 20px;
+          }
+          `,
+          js: `
+          angular.module('ionic').controller('MyController', function($scope) {
+            console.log('COntrolle running');
+            $scope.doClicker = function() {
+              alert('CLICKER!!!');
+            }
+          })
+          `
+        }
+      ]);
+    });
+
+    return q.promise;
   }
 
 }

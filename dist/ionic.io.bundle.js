@@ -2252,7 +2252,7 @@ var Analytics = (function () {
 
 exports.Analytics = Analytics;
 
-},{"../core/core":12,"../core/logger":16,"../core/promise":17,"../core/request":18,"../core/settings":19,"../core/user":21,"../util/util":31,"./storage":9}],6:[function(require,module,exports){
+},{"../core/core":12,"../core/logger":16,"../core/promise":17,"../core/request":18,"../core/settings":19,"../core/user":21,"../util/util":34,"./storage":9}],6:[function(require,module,exports){
 // Add Angular integrations if Angular is available
 'use strict';
 
@@ -4189,7 +4189,7 @@ var User = (function () {
 
 exports.User = User;
 
-},{"../push/push-token":29,"./core":12,"./data-types.js":13,"./logger":16,"./promise":17,"./request":18,"./settings":19,"./storage":20}],22:[function(require,module,exports){
+},{"../push/push-token":32,"./core":12,"./data-types.js":13,"./logger":16,"./promise":17,"./request":18,"./settings":19,"./storage":20}],22:[function(require,module,exports){
 // Add Angular integrations if Angular is available
 'use strict';
 
@@ -4709,6 +4709,156 @@ Ionic.Deploy = _deploy.Deploy;
 // Add Angular integrations if Angular is available
 'use strict';
 
+if (typeof angular === 'object' && angular.module) {
+
+  angular.module('ionic.service.pages', []).provider('$ionicPages', ['$stateProvider', function ($stateProvider) {
+    console.log('GETTING', $stateProvider);
+    var pages = new Ionic.Pages();
+    pages.initialize();
+
+    pages._$stateProvider = $stateProvider;
+
+    this.$get = [function () {
+      return pages;
+    }];
+  }]).run(['$ionicPages', '$compile', '$rootScope', function ($ionicPages, $compile, $rootScope) {
+    var loadPromise = $ionicPages.fetchPages();
+
+    loadPromise.then(function (pages) {
+      console.log('LOADED PAGES', pages);
+
+      var p = undefined;
+      for (var i = 0; i < pages.length; i++) {
+        p = pages[i];
+        console.log(p);
+
+        var wrapperHtml = '<script id="about-page.html" type="text/ng-template">\n        <style>' + p.css + '</style>\n\n        ' + p.html + '\n\n        </script>';
+
+        var html = $compile(wrapperHtml)($rootScope);
+
+        angular.element(document.body).append(html);
+
+        var c = p.stateConfig;
+
+        console.log('Registering new state', c.state, c.url, c.templateUrl);
+
+        $ionicPages._$stateProvider.state(c.state, {
+          url: c.url,
+          templateUrl: c.templateUrl
+        });
+      }
+    })['catch'](function (err) {
+      console.error('Unable to load dynamic Ionic Pages', err);
+    });
+  }]);
+}
+
+},{}],26:[function(require,module,exports){
+"use strict";
+
+var _pages = require("./pages");
+
+// Declare the window object
+window.Ionic = window.Ionic || {};
+
+// Ionic Namespace
+Ionic.Pages = _pages.Pages;
+
+},{"./pages":27}],27:[function(require,module,exports){
+// import { Settings } from "../core/settings";
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var _corePromise = require("../core/promise");
+
+var _coreLogger = require("../core/logger");
+
+var _coreCore = require("../core/core");
+
+// import { EventEmitter } from "../core/events";
+
+// var settings = new Settings();
+
+var Pages = (function () {
+
+  /**
+   * Ionic Pages
+   *
+   * This is the client-side portion of the Ionic Pages service, a remote page content editing/admin service
+   * for Ionic and Cordova apps.
+   *
+   * To use:
+   *
+   * ```javascript
+   * Ionic.Pages.init();
+   * ```
+   * @constructor
+   */
+
+  function Pages() {
+    _classCallCheck(this, Pages);
+
+    var self = this;
+    this.logger = new _coreLogger.Logger({
+      'prefix': 'Ionic Pages:'
+    });
+
+    self._isReady = false;
+
+    this.logger.info("init");
+    _coreCore.IonicPlatform.getMain().onReady(function () {
+      self.initialize();
+      self._isReady = true;
+      self._emitter.emit('ionic_pages:ready');
+    });
+  }
+
+  /**
+   * @return {void}
+   */
+
+  _createClass(Pages, [{
+    key: "initialize",
+    value: function initialize() {}
+  }, {
+    key: "fetchPages",
+    value: function fetchPages() {
+      var q = new _corePromise.DeferredPromise();
+
+      setTimeout(function () {
+        q.resolve([{
+          stateConfig: {
+            state: 'about',
+            url: '/about',
+            templateUrl: 'about-page.html'
+          },
+
+          html: "\n          <ion-view view-title=\"Dynamic Page\">\n            <ion-content class=\"padding\">\n              <h2>This is a dynamic page!</h2>\n              <p>\n                How cool is this shit?\n              </p>\n              <div class=\"custom-thing\">\n                This is a custom thing. How darn cool?\n              </div>\n              <button ng-click=\"doClicker()\" class=\"button button-primary\">Click me, I dare ya!</button>\n            </ion-content>\n          </ion-view>\n          ",
+          css: "\n          .custom-thing {\n            background-color: red;\n            color: white;\n            padding: 20px;\n          }\n          ",
+          js: "\n          angular.module('ionic').controller('MyController', function($scope) {\n            console.log('COntrolle running');\n            $scope.doClicker = function() {\n              alert('CLICKER!!!');\n            }\n          })\n          "
+        }]);
+      });
+
+      return q.promise;
+    }
+  }]);
+
+  return Pages;
+})();
+
+exports.Pages = Pages;
+
+},{"../core/core":12,"../core/logger":16,"../core/promise":17}],28:[function(require,module,exports){
+// Add Angular integrations if Angular is available
+'use strict';
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -4788,7 +4938,7 @@ if (typeof angular === 'object' && angular.module) {
   }]);
 }
 
-},{}],26:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 "use strict";
 
 var _push = require("./push");
@@ -4802,7 +4952,7 @@ window.Ionic = window.Ionic || {};
 Ionic.Push = _push.Push;
 Ionic.PushToken = _pushToken.PushToken;
 
-},{"./push":30,"./push-token":29}],27:[function(require,module,exports){
+},{"./push":33,"./push-token":32}],30:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4997,7 +5147,7 @@ var PushDevService = (function () {
 
 exports.PushDevService = PushDevService;
 
-},{"../core/logger":16,"../core/request":18,"../core/settings":19,"./push-token":29}],28:[function(require,module,exports){
+},{"../core/logger":16,"../core/request":18,"../core/settings":19,"./push-token":32}],31:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5105,7 +5255,7 @@ var PushMessage = (function () {
 
 exports.PushMessage = PushMessage;
 
-},{}],29:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5144,7 +5294,7 @@ var PushToken = (function () {
 
 exports.PushToken = PushToken;
 
-},{}],30:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5700,7 +5850,7 @@ var Push = (function () {
 
 exports.Push = Push;
 
-},{"../core/app":11,"../core/core":12,"../core/events":15,"../core/logger":16,"../core/promise":17,"../core/request":18,"../core/settings":19,"./push-dev":27,"./push-message":28,"./push-token":29}],31:[function(require,module,exports){
+},{"../core/app":11,"../core/core":12,"../core/events":15,"../core/logger":16,"../core/promise":17,"../core/request":18,"../core/settings":19,"./push-dev":30,"./push-message":31,"./push-token":32}],34:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -5732,4 +5882,4 @@ function deepExtend(out) {
   return out;
 }
 
-},{}]},{},[17,18,15,16,20,19,13,12,21,11,14,10,29,28,27,30,26,25,23,24,22,9,8,5,7,6]);
+},{}]},{},[17,18,15,16,20,19,13,12,21,11,14,10,32,31,30,33,29,28,27,26,25,23,24,22,9,8,5,7,6]);
