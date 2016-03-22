@@ -55,6 +55,8 @@ export class Pages {
             templateUrl: 'about-page.html'
           },
 
+          title: 'Awesome page',
+
           html: `
           <ion-view view-title="Dynamic Page">
             <ion-content class="padding">
