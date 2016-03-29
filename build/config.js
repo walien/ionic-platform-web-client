@@ -44,6 +44,11 @@ var src = {
     'src/analytics/analytics.js',
     'src/analytics/es5.js',
     'src/analytics/angular.js'
+  ],
+
+  'trace': [
+    'src/trace/trace.js',
+    'src/trace/es5.js'
   ]
 };
 
@@ -62,12 +67,14 @@ module.exports = {
     'push': src.push,
     'deploy': src.deploy,
     'analytics': src.analytics,
+    'trace': src.trace,
     'bundle': [].concat(
       src.core,
       src.auth,
       src.push,
       src.deploy,
-      src.analytics
+      src.analytics,
+      src.trace
     )
   },
 
