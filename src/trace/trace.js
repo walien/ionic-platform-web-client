@@ -1,27 +1,20 @@
 import { Settings } from "../core/settings";
-import { Logger } from "../core/logger";
 
 var settings = new Settings();
+var apiToken = settings.get('sentry_token');
+if (!apiToken) {
+  console.log("Missing sentry API token");
+} else {
+  console.log("Sentry API token is: ", apiToken);
+}
 
 var Raven = window.Raven || undefined;
+if (typeof Raven === 'object') {
+  Raven.config('http://' + apiToken + '@localhost:9000/2').install();
+}
 
-export class TraceService {
-  constructor() {
-    this.logger = new Logger({
-      'prefix': 'Ionic Trace (dev):'
-    });
-    var apiToken = settings.get('sentry_token');
-    if (!apiToken) {
-      console.log("Missing sentry API token");
-    } else {
-      console.log("Sentry API token is: ", apiToken);
-    }
-
-    Raven.config('http://' + apiToken + '@localhost:9000/2')
-      .install();
-  }
-
-  captureException(exc) {
+export class Trace {
+  static captureException(exc) {
     Raven.captureException(exc);
   }
 }
