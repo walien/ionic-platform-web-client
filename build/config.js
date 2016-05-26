@@ -84,7 +84,8 @@ module.exports = {
       src.es5,
       src.angular
     ),
-    'ts': ['typings/index.d.ts', 'src/**/*.ts']
+    'ts': ['typings/index.d.ts', 'src/**/*.ts'],
+    'es6': ['typings/index.d.ts', 'typings/global/es6-promise/index.d.ts', 'src/**/*.ts']
   },
 
   "versionData": {

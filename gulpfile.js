@@ -26,9 +26,10 @@ gulp.task('minify', ['build-bundle'], function() {
 
 gulp.task('build', ['version']);
 
-gulp.task('build-bundle', ['clean', 'lint', 'build-typescript'], function() {
+gulp.task('build-bundle', ['clean', 'lint', 'build-definitions', 'build-es6', 'build-commonjs'], function() {
   return browserify(["src/es5.js", "src/core/angular.js", "src/analytics/angular.js", "src/auth/angular.js", "src/push/angular.js", "src/deploy/angular.js", "dist/es6/index.js"], { "debug": true })
     .transform("babelify", { "presets": ["es2015"] })
+    .require('es6-promise')
     .bundle()
     .on("error", function(err) { console.log("Error : " + err.message); })
     .pipe(fs.createWriteStream(buildConfig.dist + "/ionic.io.bundle.js"));
@@ -50,12 +51,30 @@ gulp.task('watch', ['build'], function() {
 
 gulp.task('default', ['build']);
 
-gulp.task('build-typescript', function() {
+gulp.task('build-definitions', function() {
+  return gulp.src(buildConfig.sourceFiles.ts).pipe(ts({
+    "declaration": true,
+    "target": "es6"
+  })).dts.pipe(gulp.dest('dist/typings'));
+});
+
+gulp.task('build-es6', function() {
   return gulp.src(buildConfig.sourceFiles.ts).pipe(ts({
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "es6",
-    "declaration": true,
+    "moduleResolution": "node",
     "typescript": require('typescript')
   })).js.pipe(gulp.dest('dist/es6'));
+});
+
+gulp.task('build-commonjs', function() {
+  return gulp.src(buildConfig.sourceFiles.es6).pipe(ts({
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "typescript": require('typescript')
+  })).js.pipe(gulp.dest('dist/commonjs'));
 });
