@@ -13,7 +13,7 @@ export class DOMSerializer {
 
       var className = element.className;
       if (className) {
-        var classes = className.split(' ');
+        var classes = ('' + className).split(' ');
         for (var i = 0; i < classes.length; i++) {
           var c = classes[i];
           if (c) {
