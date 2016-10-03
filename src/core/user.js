@@ -165,7 +165,7 @@ class UserData {
   deserializerDataTypes() {
     for (var x in this.data) {
       // if we have an object, let's check for custom data types
-      if (typeof this.data[x] === 'object') {
+      if (this.data[x] && typeof this.data[x] === 'object') {
         // do we have a custom type?
         if (this.data[x].__Ionic_DataTypeSchema) {
           var name = this.data[x].__Ionic_DataTypeSchema;
